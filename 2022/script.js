@@ -1,95 +1,37 @@
 const roughData = document.querySelector('pre').innerHTML;
-let total = [];
-let comp = [];
+let checkAll = [];
+const pairs = roughData.split('\n');
+const organizedPairs = pairs.map(function(el){
+    const first = el.split(',');
+    return first.map((ell) => ell.split('-'));
+})
 let counter = 0;
-let elements = [];
+let counterOver = 0;
 
-const alph = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+organizedPairs.pop();
+console.log(organizedPairs);
 
-for(const elem of roughData) {
-    if(elem.charCodeAt(0) !== 10 && elem.charCodeAt(0) !== 32) {
-        comp.push(elem);
-    } else if (elem.charCodeAt(0) === 10) {
-        total.push(comp);
-        comp = [];
+for (const i of organizedPairs) {
+    if (((parseInt(i[0][0]) >= parseInt(i[1][0])) && (parseInt(i[0][1]) <= parseInt(i[1][1]))) || 
+    ((parseInt(i[1][0]) >= parseInt(i[0][0])) && (parseInt(i[1][1]) <= parseInt(i[0][1])))) {
+        checkAll.push(1);
+        counter++;
+    } else {
+        checkAll.push(0);
     }
 }
 
-const spliTotal = total.map(function(x) {
-    const half = x.length /2;
-    const firstHalf = x.slice(0, half);
-    const secondHalf = x.slice(half);
-    return [firstHalf, secondHalf];
-});
-
-for (const i of spliTotal) {
-    const mixedElement = i[0].find(function(backpack, index, fullArr){
-        for (const j of i[1]) {
-            if(backpack === j) {
-                return backpack;
-            }
-        }
-    });    
-    elements.push(mixedElement);
-}
-
-const elementsValues = elements.map(function(el) {
-    const founded =  alph.findIndex(function (letter, letNum) {
-        if (el === letter) {
-            return letNum + 1;
-        }
-    });
-    return(founded + 1);
-})
-
-const sumWithInitial = elementsValues.reduce(
-    (accumulator, currentValue) => accumulator + currentValue, 0 );
-
-//BADGES
-
-const teamsTotal = [];
-let team = [];
-let turn = 0;
-
-for (elem of total) {
-    team.push(elem);
-    turn++;
-    if(turn===3){
-        teamsTotal.push(team);
-        team = [];
-        turn = 0;
-    }
-}
-
-const teamBadgeValue = [];
-
-teamsTotal.forEach(function(element){
-    const commonFirst = [];
-    for (const i of element[0]) {
-        for (const j of element[1]) {
-            if (i === j) {
-                commonFirst.push(i);
+for (const i of organizedPairs) {
+    for (let j = parseInt(i[0][0]); j <= parseInt(i[0][1]); j++) {
+        for (let k = parseInt(i[1][0]); k <= parseInt(i[1][1]); k++){
+            if(parseInt(j) === parseInt(k)){
+                console.log(j + ' est bien eqale à ' + k);
+                counterOver++;
+                j = 1000;
+                k = 1000;
             }
         }
     }
-    const commonBadgde = commonFirst.find(function(elBadge){
-        for (lastCommon of element[2]) {
-            if (elBadge === lastCommon) {
-                return elBadge;
-            }
-        }
-    });
+}
 
-    valueBadge = alph.findIndex(function (letter, letNum) {
-        if (commonBadgde === letter) {
-            return letNum + 1;
-        }
-    });
-
-    teamBadgeValue.push(valueBadge + 1);
-})
-
-const teamBadgeTotal = teamBadgeValue.reduce(
-    (accumulator, currentValue) => accumulator + currentValue, 0 );
-
-console.log(teamBadgeTotal);
+console.log(counterOver);
