@@ -1,37 +1,76 @@
 const roughData = document.querySelector('pre').innerHTML;
-let checkAll = [];
-const pairs = roughData.split('\n');
-const organizedPairs = pairs.map(function(el){
-    const first = el.split(',');
-    return first.map((ell) => ell.split('-'));
-})
-let counter = 0;
-let counterOver = 0;
+const dock = [];
+let actualLine = 0;
+let emptyCounter = 0;
+let maxStack = 8;
+let i = 0;
 
-organizedPairs.pop();
-console.log(organizedPairs);
-
-for (const i of organizedPairs) {
-    if (((parseInt(i[0][0]) >= parseInt(i[1][0])) && (parseInt(i[0][1]) <= parseInt(i[1][1]))) || 
-    ((parseInt(i[1][0]) >= parseInt(i[0][0])) && (parseInt(i[1][1]) <= parseInt(i[0][1])))) {
-        checkAll.push(1);
-        counter++;
+function switchLine() {
+    if (actualLine > 7) {
+        actualLine = 0;
     } else {
-        checkAll.push(0);
+        actualLine++;
     }
 }
 
-for (const i of organizedPairs) {
-    for (let j = parseInt(i[0][0]); j <= parseInt(i[0][1]); j++) {
-        for (let k = parseInt(i[1][0]); k <= parseInt(i[1][1]); k++){
-            if(parseInt(j) === parseInt(k)){
-                console.log(j + ' est bien eqale à ' + k);
-                counterOver++;
-                j = 1000;
-                k = 1000;
-            }
+while(maxStack > 0) {
+    if (!(dock[actualLine] instanceof Array)) {
+        dock[actualLine] = [];
+    }
+
+    if (roughData[i].charCodeAt(0) === 32) {
+        emptyCounter++
+        if (emptyCounter > 3) {
+            switchLine();
+            emptyCounter = 0;
         }
+    } else if (roughData[i].charCodeAt(0) === 10) {
+        emptyCounter = 0;
+        actualLine = 0;
+        maxStack--;
+    } else if (roughData[i].charCodeAt(0) !== 93 && roughData[i].charCodeAt(0) !== 91 ) {
+        dock[actualLine].unshift(roughData[i]);
+    } else if (roughData[i].charCodeAt(0) === 93) {
+        switchLine();
+        emptyCounter = 0;
+    }
+    i++;
+}
+
+const secondPart = roughData.slice(i + 39);
+arraySecond = secondPart.split('\n');
+
+const instruction = [];
+
+for (elem in arraySecond) {
+    instruction.push(arraySecond[elem].split(' '));
+}
+
+console.log(instruction);
+
+/*for (operation of instruction) {
+    const fromDock = parseInt(operation[4]) - 1;
+    const toDock = parseInt(operation[6]) - 1;
+    const loops = operation[2];
+    for (let i = loops ; i > 0 ; i--) {
+        let popped = dock[parseInt(fromDock)].pop();
+        dock[parseInt(toDock)].push(popped);
+    }
+}*/
+
+for (operation of instruction) {
+    const fromDock = parseInt(operation[4]) - 1;
+    const toDock = parseInt(operation[6]) - 1;
+    const loops = operation[2];
+    let moved = [];
+    for (let i = loops ; i > 0 ; i--) {
+         moved.push(dock[fromDock].pop());
+    }
+    for (let i = loops ; i > 0 ; i--) {
+        dock[toDock].push(moved.pop());
     }
 }
 
-console.log(counterOver);
+
+
+console.log(dock);
